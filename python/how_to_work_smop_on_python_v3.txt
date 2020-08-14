@@ -1,0 +1,46 @@
+Python 3 環境で SMOPを動作させる方法
+
+
+インストール
+pip3 install smop
+
+
+
+動作検証
+smop hogehoge.m
+→エラーが出る。
+AttributeError: 'DiGraph' object has no attribute '_node'
+
+vi /Usr/local/lib/python3.8/site-packages/smop/resolve.py
+54行目、66行目の G.node をG.node に修正
+
+54c54
+<         u = G.nodes[n]["ident"]
+---
+>         u = G.node[n]["ident"]
+66c66
+<         G.nodes[n]["label"] = "%s\\n%s" % (n, u.props)
+---
+>         G.node[n]["label"] = "%s\\n%s" % (n, u.props)
+
+
+変換したコードが動かない問題
+libsmop.py がない
+-> git 上のlibsmop.pyを動作させるディレクトリへコピーする
+
+それでも動かない
+libsmop.py の2箇所を修正
+6行目
+import builtins
+668行目
+sort = builtins.sorted
+
+
+ここまでやれば、とりえあえず以下で一気に変換出来る
+$ for FILE in *.m ; do ls $FILE && smop $FILE; done
+
+変換出来なかったファイルは以下の二つ。
+demo.m
+　→変換出来るのは、関数のみなので、起動スクリプトであるdemo.mが変換出来ないのは当然
+fr2video.m
+
